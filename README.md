@@ -8,8 +8,6 @@ This project is a full-stack web application built for the OmVad Take-Home Assig
 
 ## Screenshots
 
-*(Here you can add the 2-5 screenshots or a GIF as required by the submission checklist. I recommend showing off the light mode, dark mode, and mobile responsiveness.)*
-
 **Light Mode Dashboard**
 
 <img width="1915" height="986" alt="Screenshot 2025-07-17 172144" src="https://github.com/user-attachments/assets/b0cabab5-1742-4326-9fa6-9b6fdabffc02" />
