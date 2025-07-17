@@ -1,54 +1,60 @@
-import { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import BookmarkForm from '../components/bookmarks/BookmarkForm';
-import BookmarkList from '../components/bookmarks/BookmarkList';
+// pages/index.js
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
-function HomePage() {
-  const { data: session, status } = useSession();
-  const [bookmarks, setBookmarks] = useState([]);
+export default function DashboardPage() {
+  const router = useRouter();
+  const [userEmail, setUserEmail] = useState(null); // We can add user info later
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      fetch('/api/bookmarks')
-        .then((response) => response.json())
-        .then((data) => setBookmarks(data.bookmarks));
+    const token = localStorage.getItem('token');
+    // If no token is found, redirect to the login page
+    if (!token) {
+      router.replace('/login');
+    } else {
+      // In a real app, you'd verify the token with the backend
+      // and decode it to get user info. For now, we'll just confirm they are "logged in".
+      setUserEmail('user@example.com'); // Placeholder
     }
-  }, [status]);
+  }, [router]);
 
-  function handleAddBookmark(newBookmark) {
-    setBookmarks((prevBookmarks) => [...prevBookmarks, newBookmark]);
-  }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.replace('/login');
+  };
 
-  function handleDeleteBookmark(bookmarkId) {
-    setBookmarks((prevBookmarks) =>
-      prevBookmarks.filter((bookmark) => bookmark._id !== bookmarkId)
-    );
-  }
-
-  if (status === 'loading') {
-    return <p>Loading...</p>;
-  }
-
-  if (status === 'unauthenticated') {
+  // While checking for the token, you can show a loading state
+  if (!userEmail) {
     return (
-      <div>
-        <h1>Not signed in</h1>
-        <a href="/login">Sign In</a>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg">Loading...</p>
       </div>
     );
   }
 
+  // Once authenticated, show the dashboard
   return (
-    <div>
-      <h1>Your Bookmarks</h1>
-      <button onClick={() => signOut()}>Sign Out</button>
-      <BookmarkForm onAddBookmark={handleAddBookmark} />
-      <BookmarkList
-        bookmarks={bookmarks}
-        onDeleteBookmark={handleDeleteBookmark}
-      />
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow">
+        <nav className="container flex items-center justify-between px-6 py-4 mx-auto">
+          <h1 className="text-xl font-bold text-indigo-600">Link Saver</h1>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 font-semibold text-indigo-600 bg-transparent border border-indigo-500 rounded hover:bg-indigo-500 hover:text-white hover:border-transparent"
+          >
+            Logout
+          </button>
+        </nav>
+      </header>
+      <main className="container px-6 py-8 mx-auto">
+        <h2 className="text-2xl font-semibold text-gray-800">Your Saved Links</h2>
+        <div className="mt-8">
+          {/* Bookmark form and list will go here in the next step */}
+          <p className="p-4 text-center bg-white rounded-md shadow">
+            Your saved bookmarks will appear here.
+          </p>
+        </div>
+      </main>
     </div>
   );
 }
-
-export default HomePage;
