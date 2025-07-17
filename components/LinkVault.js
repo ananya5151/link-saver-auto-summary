@@ -4,6 +4,7 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useTheme } from 'next-themes';
 
 const SortableBookmarkItem = ({ bookmark, onDeleteBookmark }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: bookmark._id });
@@ -60,7 +61,8 @@ const BookmarkCard = ({ bookmark, onDeleteBookmark, dragHandleProps }) => {
 };
 
 export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignup, onLogout, onAddBookmark, onDeleteBookmark, onReorder }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState('login');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -69,20 +71,7 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
   const [selectedTag, setSelectedTag] = useState('all');
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  useEffect(() => {
-    const isDark = localStorage.getItem('linkvault-darkmode') === 'true';
-    setDarkMode(isDark);
-    document.documentElement.classList.toggle('dark', isDark);
-  }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode(prev => {
-      const newMode = !prev;
-      localStorage.setItem('linkvault-darkmode', newMode);
-      document.documentElement.classList.toggle('dark', newMode);
-      return newMode;
-    });
-  };
+  useEffect(() => setMounted(true), []);
 
   const allTags = useMemo(() => ['all', ...new Set((bookmarks || []).flatMap(b => b.tags || []))], [bookmarks]);
   
@@ -128,10 +117,14 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
       const newIndex = bookmarks.findIndex(item => item._id === over.id);
       if (oldIndex === -1 || newIndex === -1) return;
       const newOrder = arrayMove(bookmarks, oldIndex, newIndex);
-      onReorder(newOrder.map(item => item._id));
+      onReorder(newOrder);
     }
   };
   
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-slate-900 font-sans transition-colors`}>
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-sm">
@@ -161,8 +154,8 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
                   <span>Login / Signup</span>
                 </button>
               )}
-              <button onClick={toggleDarkMode} className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             </div>
             <div className="md:hidden"><button onClick={() => setShowMobileMenu(true)} className="p-2 rounded-md text-slate-600 dark:text-slate-300"><Menu /></button></div>
@@ -176,7 +169,7 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 my-6 space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input type="text" placeholder="Search bookmarks..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                <input type="text" placeholder="Search bookmarks..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex flex-wrap items-center gap-2">
@@ -228,8 +221,8 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
             <h2 className="text-2xl font-bold text-center text-slate-800 dark:text-white mb-2">{authMode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
             <p className="text-center text-slate-500 dark:text-slate-400 mb-6">{authMode === 'login' ? 'Login to access your vault.' : 'Start saving links today.'}</p>
             <form className="space-y-4" onSubmit={handleAuthSubmit}>
-              <input name="email" type="email" placeholder="Email address" required className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
-              <input name="password" type="password" placeholder="Password" required className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
+              <input name="email" type="email" placeholder="Email address" required className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
+              <input name="password" type="password" placeholder="Password" required className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
               <button type="submit" className="w-full py-2.5 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 transition-opacity">{authMode === 'login' ? 'Log In' : 'Sign Up'}</button>
             </form>
             <p className="text-center text-sm text-slate-500 mt-6">{authMode === 'login' ? "Don't have an account?" : "Already have an account?"}<button onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')} className="font-semibold text-blue-600 hover:underline ml-1">{authMode === 'login' ? 'Sign Up' : 'Log In'}</button></p>
@@ -242,8 +235,8 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
             <button onClick={() => setShowAddModal(false)} className="absolute top-4 right-4 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"><X className="w-6 h-6 text-slate-500"/></button>
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Add New Bookmark</h2>
             <form className="space-y-4" onSubmit={handleAddSubmit}>
-              <input name="url" type="url" placeholder="https://example.com" required className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
-              <input name="tags" type="text" placeholder="Tags (comma-separated)" className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
+              <input name="url" type="url" placeholder="https://example.com" required className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
+              <input name="tags" type="text" placeholder="Tags (comma-separated)" className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"/>
               <button type="submit" className="w-full py-2.5 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 transition-opacity">Add Link & Summarize</button>
             </form>
           </div>
@@ -265,8 +258,8 @@ export default function LinkVault({ isAuthenticated, bookmarks, onLogin, onSignu
                     ) : (
                       <button onClick={() => { setShowMobileMenu(false); setAuthMode('login'); setShowAuthModal(true); }} className="flex items-center space-x-3 text-lg text-slate-700 dark:text-slate-200 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"><User/><span>Login / Signup</span></button>
                     )}
-                     <button onClick={toggleDarkMode} className="flex items-center space-x-3 text-lg text-slate-700 dark:text-slate-200 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
-                        {darkMode ? <Sun/> : <Moon/>}<span>Toggle Theme</span>
+                     <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="flex items-center space-x-3 text-lg text-slate-700 dark:text-slate-200 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                        {theme === 'dark' ? <Sun/> : <Moon/>}<span>Toggle Theme</span>
                     </button>
                 </nav>
             </div>
