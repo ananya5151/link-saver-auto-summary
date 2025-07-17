@@ -1,6 +1,6 @@
 // pages/api/auth/signup.js
-import connectDb from '../../../utils/db';
-import User from '../../../models/User';
+import connectDb from '@/utils/db';
+import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
@@ -23,6 +23,7 @@ export default async function handler(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // This correctly creates and saves the user
     const newUser = new User({
       email,
       password: hashedPassword,

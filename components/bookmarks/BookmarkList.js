@@ -1,10 +1,11 @@
-import BookmarkItem from './BookmarkItem';
+// components/bookmarks/BookmarkList.js
+import SortableBookmarkItem from './SortableBookmarkItem';
 
-function BookmarkList({ bookmarks, onDeleteBookmark }) {
+export default function BookmarkList({ bookmarks, onDeleteBookmark }) {
   return (
-    <ul>
+    <ul className="mt-6 space-y-4">
       {bookmarks.map((bookmark) => (
-        <BookmarkItem
+        <SortableBookmarkItem
           key={bookmark._id}
           bookmark={bookmark}
           onDeleteBookmark={onDeleteBookmark}
@@ -13,5 +14,3 @@ function BookmarkList({ bookmarks, onDeleteBookmark }) {
     </ul>
   );
 }
-
-export default BookmarkList;
