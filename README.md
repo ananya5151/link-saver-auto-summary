@@ -1,6 +1,6 @@
 # LinkVault - Link Saver + Auto-Summary
 
-This project is a full-stack web application built for the OmVad Take-Home Assignment (Internship Edition). It allows users to sign up, log in, save URL bookmarks, and automatically view an AI-generated summary of the link's content.
+This project is a full-stack web application. It allows users to sign up, log in, save URL bookmarks, and automatically view an AI-generated summary of the link's content.
 
 **Live Demo:** [https://link-saver-auto-summary-chi.vercel.app/](https://link-saver-auto-summary-chi.vercel.app/)
 
